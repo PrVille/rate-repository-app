@@ -1,5 +1,5 @@
 import Text from './Text'
-import { View, Image, StyleSheet } from 'react-native'
+import { View, Image, StyleSheet, Button, Alert, Linking } from 'react-native'
 import theme from '../theme'
 
 const headerStyles = StyleSheet.create({
@@ -105,12 +105,33 @@ const Footer = ({ item }) => {
 const itemStyles = StyleSheet.create({
   container: {
     backgroundColor: 'white',
+    marginBottom: 10,
+    padding: 10,
+    alignItems: 'stretch',
+  },
+  button: {
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primary,
+    borderRadius: 5,
+    borderWidth: 2,
+    marginTop: 15,
     padding: 10,
     alignItems: 'stretch',
   },
 })
 
-const RepositoryItem = ({ item }) => {
+const RepositoryItem = ({ item, showButton }) => {
+
+  const handlePress = async (url) => {
+    const supported = await Linking.canOpenURL(url);
+
+    if (supported) {
+      await Linking.openURL(url);
+    } else {
+      Alert.alert(`Don't know how to open this URL: ${url}`);
+    }
+  }
+
   return (
     <View testID="repositoryItem" style={itemStyles.container}>
       <Header
@@ -120,6 +141,15 @@ const RepositoryItem = ({ item }) => {
       />
       <Body description={item.description} />
       <Footer item={item} />
+      {showButton && (
+        <View style={itemStyles.button}>
+          <Button
+            color="white"
+            title="Open in GitHub"
+            onPress={() => handlePress(item.url)}
+          />
+        </View>
+      )}
     </View>
   )
 }

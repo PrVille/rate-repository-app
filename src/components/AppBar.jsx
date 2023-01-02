@@ -18,13 +18,14 @@ const styles = StyleSheet.create({
 
 const AppBar = () => {
   const { data } = useMe()
-  console.log(data)
 
   return (
     <View style={styles.container}>
       <ScrollView styles={styles.scrollView} horizontal>
         <AppBarTab title="Repositories" route="/" />
+        {data && data.me && <AppBarTab title='Create a review' route='/review' />}
         {data && data.me ? <AppBarTab title="Sign Out" route="/signout" /> : <AppBarTab title="Sign In" route="/signin" />}
+        {!(data && data.me) && <AppBarTab title="Sign Up" route="/signup" />}
       </ScrollView>
     </View>
   )

@@ -10,6 +10,7 @@ const styles = StyleSheet.create({
   errorText: {
     color: '#d73a4a',
     marginTop: 5,
+    marginLeft: 10
   },
   input: {
     padding: 15,
