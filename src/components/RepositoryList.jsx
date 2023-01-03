@@ -4,9 +4,8 @@ import { useNavigate } from 'react-router-native'
 import useRepositories from '../hooks/useRepositories'
 import RepositoryItem from './RepositoryItem'
 import Picker from './Picker'
-import { Searchbar } from 'react-native-paper';
-import { useDebounce } from 'use-debounce';
-
+import { Searchbar } from 'react-native-paper'
+import { useDebounce } from 'use-debounce'
 
 const styles = StyleSheet.create({
   separator: {
@@ -16,7 +15,13 @@ const styles = StyleSheet.create({
 
 const ItemSeparator = () => <View style={styles.separator} />
 
-export const RepositoryListContainer = ({ repositories, setOrdering, setSearch, search }) => {
+export const RepositoryListContainer = ({
+  repositories,
+  setOrdering,
+  setSearch,
+  search,
+  onEndReach
+}) => {
   const navigate = useNavigate()
 
   const repositoryNodes = repositories
@@ -28,17 +33,18 @@ export const RepositoryListContainer = ({ repositories, setOrdering, setSearch, 
       data={repositoryNodes}
       ListHeaderComponent={
         <>
-         <Searchbar
-      placeholder="Search"
-      onChangeText={setSearch}
-      value={search}
-    />
-        <Picker setOrdering={setOrdering} />
+          <Searchbar
+            placeholder="Search"
+            onChangeText={setSearch}
+            value={search}
+          />
+          <Picker setOrdering={setOrdering} />
         </>
-      
-    }
+      }
       ListHeaderComponentStyle={{ zIndex: 1 }}
       ItemSeparatorComponent={ItemSeparator}
+      onEndReached={onEndReach}
+      onEndReachedThreshold={0.1}
       renderItem={({ item }) => (
         <Pressable onPress={() => navigate(`/${item.id}`)}>
           <RepositoryItem item={item} />
@@ -49,15 +55,23 @@ export const RepositoryListContainer = ({ repositories, setOrdering, setSearch, 
 }
 
 const RepositoryList = () => {
-  const [ordering, setOrdering] = useState({orderBy: 'CREATED_AT', orderDirection: "DESC"})
+  const [ordering, setOrdering] = useState({
+    orderBy: 'CREATED_AT',
+    orderDirection: 'DESC',
+  })
   const [search, setSearch] = useState('')
-  const [value] = useDebounce(search, 500);
-  const { repositories } = useRepositories(ordering, value)
+  const [value] = useDebounce(search, 500)
+  const { repositories, fetchMore } = useRepositories({...ordering, searchKeyword: value, first: 8})
+
+  const onEndReach = () => {
+    fetchMore()
+  };
 
   return (
     <>
       <RepositoryListContainer
         repositories={repositories}
+        onEndReach={onEndReach}
         setOrdering={setOrdering}
         setSearch={setSearch}
         search={search}

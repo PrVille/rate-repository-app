@@ -54,7 +54,7 @@ const RepositoryInfo = ({ repository }) => {
   return <RepositoryItem item={repository} showButton={true} />
 };
 
-const ReviewItem = ({ review }) => {
+export const ReviewItem = ({ review, name }) => {
   return (
     <View style={styles.container}>
     <View style={styles.headerContainer}>
@@ -67,7 +67,7 @@ const ReviewItem = ({ review }) => {
           fontSize="subheading"
           style={{ paddingBottom: 2 }}
         >
-          {review.user.username}
+          {name}
         </Text>
         <Text style={styles.date}>{format(new Date(review.createdAt), 'dd.MM.yyyy')}</Text>
       </View>
@@ -84,15 +84,21 @@ const ItemSeparator = () => <View style={styles.separator} />
 const SingleRepository = () => {
   const { id } = useParams()
   const { repository } = useRepository(id)
-  const { reviews } = useReviews(id)
+  const { reviews, fetchMore } = useReviews({repositoryId: id, first: 4})
+
+  const onEndReach = () => {
+    fetchMore()
+  };
 
   if (!repository) return null
   return (
     <FlatList
       data={reviews}
-      renderItem={({ item }) => <ReviewItem review={item} />}
+      renderItem={({ item }) => <ReviewItem review={item} name={item.user.username} />}
       keyExtractor={({ id }) => id}
       ItemSeparatorComponent={ItemSeparator}
+      onEndReached={onEndReach}
+      onEndReachedThreshold={0.1}
       ListHeaderComponent={() => <RepositoryInfo repository={repository} />}
     />
   );
